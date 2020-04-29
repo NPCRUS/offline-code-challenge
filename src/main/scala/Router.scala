@@ -2,11 +2,11 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives.{post, _}
 import akka.http.scaladsl.server.{RequestContext, Route, RouteResult}
 import StatusCodes._
-import models.UserPost
+import models.{ProductPost, UserPost}
 
 import scala.concurrent.Future
 import JsonSupport._
-import factories.UserFactory
+import factories.{ProductFactory, UserFactory}
 
 object Router {
   def apply(): RequestContext => Future[RouteResult] = {
@@ -41,10 +41,13 @@ object Router {
   def productsRouter: Route = path("products") {
     concat(
       get {
-        complete(HttpEntity("list of products"))
+        complete(ProductFactory.get)
       },
       post {
-        complete(HttpEntity("create product"))
+        entity(as[ProductPost]) {
+          productPost => complete(ProductFactory.create(productPost).toString)
+        }
+
       }
     )
   }

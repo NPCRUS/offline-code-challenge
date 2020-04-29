@@ -19,7 +19,6 @@ class UsersRouteSpec extends AnyWordSpecLike with Matchers with ScalatestRouteTe
       }
     }
     "return 409 if user with such email exists" in {
-      userPostRequest ~> usersRoute
       userPostRequest ~> usersRoute ~> check {
         status.shouldEqual(Conflict)
       }
@@ -27,13 +26,7 @@ class UsersRouteSpec extends AnyWordSpecLike with Matchers with ScalatestRouteTe
   }
 
   "UsersRoute get" should {
-    "return empty array by default" in {
-      Get("/users") ~> usersRoute ~> check {
-        responseAs[List[User]].shouldEqual(List.empty)
-      }
-    }
     "return list of users" in {
-      userPostRequest ~> usersRoute
       Get("/users") ~> usersRoute ~> check {
         responseAs[List[User]].shouldEqual(List(User.fromPost(1, userPost)))
       }

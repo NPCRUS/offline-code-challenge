@@ -20,14 +20,8 @@ class ProductRouteSpec extends AnyWordSpecLike with Matchers with ScalatestRoute
   }
 
   "ProductRoute get" should {
-    "return empty array by default" in {
+    "return list of products" in {
       Get("/products") ~> productRoute ~> check {
-        responseAs[List[Product]].shouldEqual(List.empty)
-      }
-    }
-    "return list of users" in {
-      productPostRequest ~> productRoute
-      Get("/users") ~> productRoute ~> check {
         responseAs[List[Product]].shouldEqual(List(Product.fromPost(1, productPost)))
       }
     }
