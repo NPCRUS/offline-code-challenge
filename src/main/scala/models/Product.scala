@@ -6,11 +6,11 @@ object Product {
 }
 
 case class Product(
-  id: Long,
+  override val id: Long,
   description: String,
   price: Int,
   count: Int
-)
+) extends Identifier(id)
 
 case class ProductPost(
   description: String,

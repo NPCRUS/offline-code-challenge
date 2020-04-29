@@ -5,7 +5,7 @@ import models.{Product, ProductPost}
 object ProductFactory {
   var products: List[Product] = List.empty
 
-  def get: List[Product] = products
+  def get: List[Product] = products.reverse
 
   def getById(id: Long): Option[Product] = products.find(_.id == id)
 
@@ -18,7 +18,7 @@ object ProductFactory {
     }
 
     val product: Product = Product.fromPost(inc, productPost)
-    products = products :+ product
+    products = product :: products
     product.id
   }
 }

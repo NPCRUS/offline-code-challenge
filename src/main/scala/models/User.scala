@@ -6,11 +6,11 @@ object User {
 }
 
 case class User(
- id: Long,
+ override val id: Long,
  name: String,
  bankAccount: String,
  email: String
-)
+) extends Identifier(id)
 
 case class UserPost(
   name: String,
