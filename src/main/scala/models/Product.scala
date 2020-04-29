@@ -2,15 +2,15 @@ package models
 
 object Product {
   def fromPost(id: Long, post: ProductPost): Product =
-    Product(id, post.description, post.price, post.count)
+    Product(id = id, description = post.description, price = post.price, count = post.count)
 }
 
 case class Product(
-  override val id: Long,
+  id: Long,
   description: String,
   price: Int,
   count: Int
-) extends Identifier(id)
+)
 
 case class ProductPost(
   description: String,

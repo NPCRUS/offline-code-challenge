@@ -1,6 +1,7 @@
+package models
+
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
-import models._
 
 object JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val userProtocol: RootJsonFormat[User] = jsonFormat4(User.apply)
@@ -8,4 +9,7 @@ object JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 
   implicit val productProtocol: RootJsonFormat[Product] = jsonFormat4(Product.apply)
   implicit val productPostProtocol: RootJsonFormat[ProductPost] = jsonFormat3(ProductPost)
+
+  implicit val cartItemProtocol: RootJsonFormat[CartItem] = jsonFormat2(CartItem)
+  implicit val cartItemDeleteProtocol: RootJsonFormat[CartItemDelete] = jsonFormat1(CartItemDelete)
 }

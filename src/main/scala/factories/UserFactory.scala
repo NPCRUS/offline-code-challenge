@@ -1,28 +1,28 @@
 package factories
 
-import models.{NextId, User, UserPost}
+import models.{ User, UserPost}
 
-object UserFactory extends NextId[User] {
+object UserFactory {
   var users: List[User] = List.empty
 
   def get: List[User] = users.reverse
 
-  def getById(id: Long): Option[User] = users.find(_.id == id)
+  def getByEmail(email: String): Option[User] = users.find(_.email == email)
 
   def create(userPost: UserPost): Option[Long] = {
-    def inc: Long = {
-      users.lastOption match {
-        case Some(user) => user.id + 1
-        case None => 1
-      }
-    }
-
     users.find(_.email == userPost.email) match {
       case Some(_) => None
       case None =>
-        val user: User = User.fromPost(nextId(users), userPost)
+        val user: User = User.fromPost(nextId, userPost)
         users = user :: users
         Some(user.id)
+    }
+  }
+
+  private def nextId: Long = {
+    users.headOption match {
+      case Some(user) => user.id + 1
+      case None => 1
     }
   }
 }
