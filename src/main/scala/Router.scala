@@ -6,6 +6,7 @@ import models.UserPost
 
 import scala.concurrent.Future
 import JsonSupport._
+import factories.UserFactory
 
 object Router {
   def apply(): RequestContext => Future[RouteResult] = {

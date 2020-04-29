@@ -2,6 +2,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
+import factories.UserFactory
 import models.UserPost
 
 import scala.concurrent.ExecutionContext

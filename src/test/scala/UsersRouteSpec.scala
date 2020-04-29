@@ -9,7 +9,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 
 class UsersRouteSpec extends AnyWordSpecLike with Matchers with ScalatestRouteTest {
   val usersRoute: Route = Router.usersRouter
-  val userPost: UserPost = UserPost("test", "test", "test@test.com")
+  val userPost: UserPost = UserPost(name = "test", bankAccount = "test", email = "test@test.com")
   val userPostRequest: HttpRequest = Post("/users", userPost)
 
   "UsersRoute post" should {
@@ -29,7 +29,7 @@ class UsersRouteSpec extends AnyWordSpecLike with Matchers with ScalatestRouteTe
   "UsersRoute get" should {
     "return empty array by default" in {
       Get("/users") ~> usersRoute ~> check {
-        responseAs[String].shouldEqual("[]")
+        responseAs[List[User]].shouldEqual(List.empty)
       }
     }
     "return list of users" in {

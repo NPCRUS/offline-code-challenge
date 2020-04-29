@@ -1,3 +1,5 @@
+package factories
+
 import models.{User, UserPost}
 
 object UserFactory {
