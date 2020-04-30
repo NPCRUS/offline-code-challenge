@@ -3,7 +3,7 @@ import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
 import akka.http.scaladsl.server.{MissingHeaderRejection, Route}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import factories.{CartFactory, ProductFactory, UserFactory}
+import factories.{CartFactory, OrderFactory, ProductFactory, UserFactory}
 import models.JsonSupport._
 import models.{CartItem, CartItemDelete, Order, OrderCreateError, OrderPost, ProductPost, UserPost}
 import org.scalatest.matchers.should.Matchers
@@ -58,15 +58,28 @@ class OrderRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteT
       Post("/orders", OrderPost("test")) ~> authHeader ~> orderRoute ~> check {
         status.shouldEqual(StatusCodes.OK)
         entityAs[String].shouldEqual("1")
-        Get("/orders") ~> authHeader ~> orderRoute ~> check {
-          entityAs[List[Order]].shouldEqual(List(
-            status.shouldEqual()
-            Order(1, "npcrus@gmail.com", "test", List(cartItem))
-          ))
-        }
-        Get("/carts") ~> authHeader ~> cartRoute ~> check {
-          entityAs[List[CartItem]].shouldEqual(List.empty)
-        }
+      }
+      Get("/orders") ~> authHeader ~> orderRoute ~> check {
+        entityAs[List[Order]].shouldEqual(List(
+          Order(1, "npcrus@gmail.com", "test", List(cartItem))
+        ))
+      }
+      Get("/cart") ~> authHeader ~> cartRoute ~> check {
+        entityAs[List[CartItem]].shouldEqual(List.empty)
+      }
+    }
+  }
+
+  "OrderRoute get" should {
+    "return list of orders" in {
+      Get("/orders") ~> authHeader ~> orderRoute ~> check {
+        entityAs[List[Order]].shouldEqual(List(Order(1, "npcrus@gmail.com", "test", List(cartItem))))
+      }
+    }
+    "return list of orders that belong to specific email" in {
+      OrderFactory.create("test@test.com", OrderPost("test"), List(cartItem))
+      Get("/orders") ~> authHeader ~> orderRoute ~> check {
+        entityAs[List[Order]].filterNot(o => o.email == "npcrus@gmail.com").length.shouldEqual(0)
       }
     }
   }
