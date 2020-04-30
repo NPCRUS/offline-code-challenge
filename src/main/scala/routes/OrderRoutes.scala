@@ -1,11 +1,11 @@
 package routes
 
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusCode, StatusCodes}
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import stores.{CartStore, OrderStore, ProductStore}
 import models.JsonSupport._
-import models.{CartItem, CartItemDelete, OrderCreateError, OrderPost, Product}
+import models.{CartItem, OrderCreateError, OrderPost}
 
 object OrderRoutes extends AuthorizeByEmail {
   def apply(): Route = path("orders") {
@@ -45,7 +45,6 @@ object OrderRoutes extends AuthorizeByEmail {
     CartStore.clear(email)
     // create order
     OrderStore.create(email, orderPost, cart)
-
   }
 
   object CartIntegrity {

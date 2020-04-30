@@ -1,11 +1,11 @@
 import akka.http.javadsl.server.AuthorizationFailedRejection
 import akka.http.scaladsl.model.headers.RawHeader
 import models.JsonSupport._
-import akka.http.scaladsl.model.{HttpHeader, HttpRequest, StatusCodes}
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.{MissingHeaderRejection, Route}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import stores.{ProductStore, UserStore}
-import models.{CartItem, CartItemDelete, Product, ProductPost, UserPost}
+import models.{CartItem, CartItemDelete, ProductPost, UserPost}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import routes.CartRoutes

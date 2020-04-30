@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.{MissingHeaderRejection, Route}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import stores.{CartStore, OrderStore, ProductStore, UserStore}
 import models.JsonSupport._
-import models.{CartItem, CartItemDelete, Order, OrderCreateError, OrderPost, ProductPost, UserPost}
+import models.{CartItem, Order, OrderCreateError, OrderPost, ProductPost, UserPost}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import routes.{CartRoutes, OrderRoutes}

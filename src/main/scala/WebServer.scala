@@ -1,7 +1,5 @@
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.server.Directives._
 import stores.{ProductStore, UserStore}
 import models.{ProductPost, UserPost}
 
