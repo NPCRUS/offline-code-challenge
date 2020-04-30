@@ -3,7 +3,7 @@ package routes
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import factories.{CartFactory, ProductFactory}
+import stores.{CartStore, ProductStore}
 import models.{CartItem, CartItemDelete, Product}
 import models.JsonSupport._
 
@@ -13,20 +13,20 @@ object CartRoutes extends AuthorizeByEmail {
      authorize(authorizeByEmail(email)) {
        concat(
          get {
-           complete(CartFactory.get(email))
+           complete(CartStore.get(email))
          },
          patch {
            entity(as[CartItem]) { cartItem =>
              if(!checkProductQuantityIntegrity(cartItem)) complete(StatusCodes.Conflict)
              else {
-               CartFactory.add(email, cartItem)
+               CartStore.add(email, cartItem)
                complete(StatusCodes.OK)
              }
            }
          },
          delete {
            entity(as[CartItemDelete]) { cartItemDelete =>
-             CartFactory.remove(email, cartItemDelete.productId)
+             CartStore.remove(email, cartItemDelete.productId)
              complete(StatusCodes.OK)
            }
          }
@@ -36,7 +36,7 @@ object CartRoutes extends AuthorizeByEmail {
  }
 
   private def checkProductQuantityIntegrity(cartItem: CartItem): Boolean = {
-    val productOption: Option[Product] = ProductFactory.getById(cartItem.productId)
+    val productOption: Option[Product] = ProductStore.getById(cartItem.productId)
 
     if(productOption.isEmpty) false // no such product
     else if(productOption.get.count < cartItem.quantity) false // not enough count of products

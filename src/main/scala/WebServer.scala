@@ -2,7 +2,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
-import factories.{ProductFactory, UserFactory}
+import stores.{ProductStore, UserStore}
 import models.{ProductPost, UserPost}
 
 import scala.concurrent.ExecutionContext
@@ -13,9 +13,9 @@ object WebServer extends App {
   implicit val executionContext: ExecutionContext = system.dispatcher
 
   // some seeds
-  ProductFactory.create(ProductPost("coca-cola", 2, 100))
-  ProductFactory.create(ProductPost("pepsi-cola", 1, 200))
-  UserFactory.create(UserPost("Nikita", "DE152332432324", "npcrus@gmail.com"))
+  ProductStore.create(ProductPost("coca-cola", 2, 100))
+  ProductStore.create(ProductPost("pepsi-cola", 1, 200))
+  UserStore.create(UserPost("Nikita", "DE152332432324", "npcrus@gmail.com"))
 
   val bindingFuture = Http().bindAndHandle(Router(), "localhost", 8080)
 

@@ -1,8 +1,8 @@
-package factories
+package stores
 
 import models.{Product, ProductPost}
 
-object ProductFactory {
+object ProductStore {
   private var products: List[Product] = List.empty
 
   def get: List[Product] = products.reverse

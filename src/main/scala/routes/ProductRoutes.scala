@@ -2,7 +2,7 @@ package routes
 
 import akka.http.scaladsl.server.Directives.{as, complete, concat, entity, get, path, post}
 import akka.http.scaladsl.server.Route
-import factories.ProductFactory
+import stores.ProductStore
 import models.ProductPost
 import models.JsonSupport._
 
@@ -10,11 +10,11 @@ object ProductRoutes {
   def apply(): Route = path("products") {
     concat(
       get {
-        complete(ProductFactory.get)
+        complete(ProductStore.get)
       },
       post {
         entity(as[ProductPost]) {
-          productPost => complete(ProductFactory.create(productPost).toString)
+          productPost => complete(ProductStore.create(productPost).toString)
         }
 
       }

@@ -3,7 +3,7 @@ import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
 import akka.http.scaladsl.server.{MissingHeaderRejection, Route}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import factories.{CartFactory, OrderFactory, ProductFactory, UserFactory}
+import stores.{CartStore, OrderStore, ProductStore, UserStore}
 import models.JsonSupport._
 import models.{CartItem, CartItemDelete, Order, OrderCreateError, OrderPost, ProductPost, UserPost}
 import org.scalatest.matchers.should.Matchers
@@ -14,9 +14,9 @@ class OrderRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteT
   val orderRoute: Route = OrderRoutes()
   val cartRoute: Route = CartRoutes()
   // some seeds
-  ProductFactory.create(ProductPost("coca-cola", 2, 100))
-  ProductFactory.create(ProductPost("pepsi-cola", 1, 200))
-  UserFactory.create(UserPost("Nikita", "DE152332432324", "npcrus@gmail.com"))
+  ProductStore.create(ProductPost("coca-cola", 2, 100))
+  ProductStore.create(ProductPost("pepsi-cola", 1, 200))
+  UserStore.create(UserPost("Nikita", "DE152332432324", "npcrus@gmail.com"))
   def authHeader: RawHeader = RawHeader("Authorization-Email", "npcrus@gmail.com")
 
   val cartItem: CartItem = CartItem(1, 10)
@@ -44,7 +44,7 @@ class OrderRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteT
     }
     "respond with List(OrderCreateError) if amount ordered is more than in storage" in {
       cartAddPatch ~> authHeader ~> cartRoute
-      ProductFactory.update(cartItem.productId, 1)
+      ProductStore.update(cartItem.productId, 1)
       Post("/orders", OrderPost("test")) ~> authHeader ~> orderRoute ~> check {
         status.shouldEqual(StatusCodes.Conflict)
         entityAs[List[OrderCreateError]].length.shouldEqual(1)
@@ -52,8 +52,8 @@ class OrderRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteT
       }
     }
     "respond with 200 and clear cart and update product count" in {
-      CartFactory.clear("npcrus@gmail.com")
-      ProductFactory.update(cartItem.productId, 100)
+      CartStore.clear("npcrus@gmail.com")
+      ProductStore.update(cartItem.productId, 100)
       cartAddPatch ~> authHeader ~> cartRoute
       Post("/orders", OrderPost("test")) ~> authHeader ~> orderRoute ~> check {
         status.shouldEqual(StatusCodes.OK)
@@ -77,7 +77,7 @@ class OrderRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteT
       }
     }
     "return list of orders that belong to specific email" in {
-      OrderFactory.create("test@test.com", OrderPost("test"), List(cartItem))
+      OrderStore.create("test@test.com", OrderPost("test"), List(cartItem))
       Get("/orders") ~> authHeader ~> orderRoute ~> check {
         entityAs[List[Order]].filterNot(o => o.email == "npcrus@gmail.com").length.shouldEqual(0)
       }

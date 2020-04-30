@@ -3,7 +3,7 @@ package routes
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusCode, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import factories.{CartFactory, OrderFactory, ProductFactory}
+import stores.{CartStore, OrderStore, ProductStore}
 import models.JsonSupport._
 import models.{CartItem, CartItemDelete, OrderCreateError, OrderPost, Product}
 
@@ -13,11 +13,11 @@ object OrderRoutes extends AuthorizeByEmail {
      authorize(authorizeByEmail(email)) {
        concat(
          get {
-           complete(OrderFactory.get(email))
+           complete(OrderStore.get(email))
          },
          post {
            entity(as[OrderPost]) { orderPost =>
-             val cart = CartFactory.get(email)
+             val cart = CartStore.get(email)
              val cartErrors = CartIntegrity.getCartErrors(cart)
 
              if(cart.isEmpty) complete(StatusCodes.NotFound, "cart is empty")
@@ -36,22 +36,22 @@ object OrderRoutes extends AuthorizeByEmail {
 
     // update quantities on products
     cart.foreach(ci => {
-      ProductFactory.getById(ci.productId) match {
-        case Some(p) => ProductFactory.update(ci.productId, p.count - ci.quantity)
+      ProductStore.getById(ci.productId) match {
+        case Some(p) => ProductStore.update(ci.productId, p.count - ci.quantity)
         case None => // shouldn't happen
       }
     })
     // clear cart
-    CartFactory.clear(email)
+    CartStore.clear(email)
     // create order
-    OrderFactory.create(email, orderPost, cart)
+    OrderStore.create(email, orderPost, cart)
 
   }
 
   object CartIntegrity {
     def getCartErrors(cart: List[CartItem]): List[OrderCreateError] = {
       cart.flatMap(ci => {
-        ProductFactory.getById(ci.productId) match {
+        ProductStore.getById(ci.productId) match {
           case Some(p) =>
             if(p.count < ci.quantity) List(OrderCreateError(ci.productId, s"max amount of items ${p.count}"))
             else List.empty

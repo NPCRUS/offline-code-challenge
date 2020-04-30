@@ -1,8 +1,8 @@
-package factories
+package stores
 
 import models.CartItem
 
-object CartFactory {
+object CartStore {
   private var carts: Map[String, List[CartItem]] = Map.empty
 
   def get(key: String): List[CartItem] = carts.getOrElse(key, List.empty).reverse

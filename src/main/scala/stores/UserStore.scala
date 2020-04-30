@@ -1,8 +1,8 @@
-package factories
+package stores
 
 import models.{ User, UserPost}
 
-object UserFactory {
+object UserStore {
   private var users: List[User] = List.empty
 
   def get: List[User] = users.reverse

@@ -1,8 +1,8 @@
-package factories
+package stores
 
 import models.{CartItem, Order, OrderPost}
 
-object OrderFactory {
+object OrderStore {
   private var orders: List[Order] = List.empty
 
   def get(email: String): List[Order] = orders.filter(_.email == email).reverse

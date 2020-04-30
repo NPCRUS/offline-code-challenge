@@ -1,10 +1,10 @@
 package routes
 
-import factories.UserFactory
+import stores.UserStore
 
 trait AuthorizeByEmail {
   def authorizeByEmail(email: String): Boolean =
-    UserFactory.getByEmail(email) match {
+    UserStore.getByEmail(email) match {
       case Some(_) => true
       case None => false
     }
