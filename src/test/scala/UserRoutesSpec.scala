@@ -8,7 +8,7 @@ import akka.http.scaladsl.server.Route
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
-class UsersRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteTest {
+class UserRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteTest {
   val usersRoute: Route = UserRoutes()
   val userPost: UserPost = UserPost(name = "test", bankAccount = "test", email = "test@test.com")
   val userPostRequest: HttpRequest = Post("/users", userPost)

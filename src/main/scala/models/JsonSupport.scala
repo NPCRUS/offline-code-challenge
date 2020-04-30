@@ -12,4 +12,8 @@ object JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 
   implicit val cartItemProtocol: RootJsonFormat[CartItem] = jsonFormat2(CartItem)
   implicit val cartItemDeleteProtocol: RootJsonFormat[CartItemDelete] = jsonFormat1(CartItemDelete)
+
+  implicit val orderProtocol: RootJsonFormat[Order] = jsonFormat4(Order)
+  implicit val orderPostProtocol: RootJsonFormat[OrderPost] = jsonFormat1(OrderPost)
+  implicit val orderCreateError: RootJsonFormat[OrderCreateError] = jsonFormat2(OrderCreateError)
 }

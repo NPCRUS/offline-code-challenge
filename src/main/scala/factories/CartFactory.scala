@@ -3,9 +3,9 @@ package factories
 import models.CartItem
 
 object CartFactory {
-  var carts: Map[String, List[CartItem]] = Map.empty
+  private var carts: Map[String, List[CartItem]] = Map.empty
 
-  def get(key: String): List[CartItem] = carts.getOrElse(key, List.empty)
+  def get(key: String): List[CartItem] = carts.getOrElse(key, List.empty).reverse
 
   def add(key: String, item: CartItem): Unit = {
     def updateOrAdd(cart: List[CartItem], item: CartItem): List[CartItem] = {
@@ -27,4 +27,6 @@ object CartFactory {
 
     carts = carts.updated(key, cart.filter(_.productId != productId))
   }
+
+  def clear(key: String): Unit = carts = carts.filterNot(t => t._1 == key)
 }

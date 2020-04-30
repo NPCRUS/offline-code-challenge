@@ -3,7 +3,7 @@ package factories
 import models.{ User, UserPost}
 
 object UserFactory {
-  var users: List[User] = List.empty
+  private var users: List[User] = List.empty
 
   def get: List[User] = users.reverse
 

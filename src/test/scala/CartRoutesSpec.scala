@@ -18,9 +18,6 @@ class CartRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteTe
   UserFactory.create(UserPost("Nikita", "DE152332432324", "npcrus@gmail.com"))
   def authHeader: RawHeader = RawHeader("Authorization-Email", "npcrus@gmail.com")
 
-  val productPost: ProductPost = ProductPost(description = "coca-cola", price = 2, count = 100)
-  val productPostRequest: HttpRequest = Post("/products", productPost)
-
   "Cart Route" should {
     "respond with missing Authorization-Email header if none presented" in {
       Get("/cart") ~> cartRoute ~> check {
