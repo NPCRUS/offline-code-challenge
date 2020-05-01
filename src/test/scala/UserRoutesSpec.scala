@@ -5,13 +5,19 @@ import routes.UserRoutes
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Route
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
+import stores.Store
 
-class UserRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteTest {
-  val usersRoute: Route = UserRoutes()
+class UserRoutesSpec extends AnyWordSpecLike with Matchers with BeforeAndAfterEach with  ScalatestRouteTest {
+  var usersRoute: Route = UserRoutes(new Store[User])
   val userPost: UserPost = UserPost(name = "test", bankAccount = "test", email = "test@test.com")
   val userPostRequest: HttpRequest = Post("/users", userPost)
+
+  override def beforeEach() {
+    usersRoute = UserRoutes(new Store[User])
+  }
 
   "UsersRoute post" should {
     "return id of newly created user" in {
@@ -20,6 +26,7 @@ class UserRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteTe
       }
     }
     "return 409 if user with such email exists" in {
+      userPostRequest ~> usersRoute
       userPostRequest ~> usersRoute ~> check {
         status.shouldEqual(Conflict)
       }
@@ -28,6 +35,7 @@ class UserRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteTe
 
   "UsersRoute get" should {
     "return list of users" in {
+      userPostRequest ~> usersRoute
       Get("/users") ~> usersRoute ~> check {
         responseAs[List[User]].shouldEqual(List(User.fromPost(1, userPost)))
       }
