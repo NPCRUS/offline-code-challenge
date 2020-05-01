@@ -2,7 +2,7 @@ package stores
 
 import models.{Product, ProductPost}
 
-object ProductStore {
+object ProductStore extends IdSequence {
   private var products: List[Product] = List.empty
 
   def get: List[Product] = products.reverse
@@ -10,7 +10,7 @@ object ProductStore {
   def getById(id: Long): Option[Product] = products.find(_.id == id)
 
   def create(productPost: ProductPost): Long = {
-    val product: Product = Product.fromPost(nextId, productPost)
+    val product: Product = Product.fromPost(nextId(products), productPost)
     products = product :: products
     product.id
   }
@@ -20,12 +20,5 @@ object ProductStore {
       if(p.id == productId) Product(p.id, p.description, p.price, count)
       else p
     })
-  }
-
-  private def nextId: Long = {
-    products.headOption match {
-      case Some(product) => product.id + 1
-      case None => 1
-    }
   }
 }

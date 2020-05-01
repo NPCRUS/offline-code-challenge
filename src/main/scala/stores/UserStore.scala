@@ -2,7 +2,7 @@ package stores
 
 import models.{ User, UserPost}
 
-object UserStore {
+object UserStore extends IdSequence {
   private var users: List[User] = List.empty
 
   def get: List[User] = users.reverse
@@ -13,16 +13,9 @@ object UserStore {
     users.find(_.email == userPost.email) match {
       case Some(_) => None
       case None =>
-        val user: User = User.fromPost(nextId, userPost)
+        val user: User = User.fromPost(nextId(users), userPost)
         users = user :: users
         Some(user.id)
-    }
-  }
-
-  private def nextId: Long = {
-    users.headOption match {
-      case Some(user) => user.id + 1
-      case None => 1
     }
   }
 }

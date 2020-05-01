@@ -10,7 +10,7 @@ case class User(
  name: String,
  bankAccount: String,
  email: String
-)
+) extends Entity
 
 case class UserPost(
   name: String,

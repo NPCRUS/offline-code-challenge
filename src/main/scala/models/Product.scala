@@ -10,7 +10,7 @@ case class Product(
   description: String,
   price: Int,
   count: Int
-)
+) extends Entity
 
 case class ProductPost(
   description: String,
