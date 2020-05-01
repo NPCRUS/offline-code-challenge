@@ -14,12 +14,12 @@ class ProductRoutesSpec extends AnyWordSpecLike
   with BeforeAndAfterEach
   with ScalatestRouteTest
 {
-  var productRoute: Route = ProductRoutes(new Store[Product])
+  var productRoute: Route = new ProductRoutes(new Store[Product]).getRoutes
   val productPost: ProductPost = ProductPost(description = "coca-cola", price = 2, count = 100)
   val productPostRequest: HttpRequest = Post("/products", productPost)
 
   override def beforeEach() = {
-    productRoute = ProductRoutes(new Store[Product])
+    productRoute = new ProductRoutes(new Store[Product]).getRoutes
   }
 
   "ProductRoute post" should {

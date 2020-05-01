@@ -7,19 +7,19 @@ import stores.Store
 import models.{User, UserPost}
 import models.JsonSupport._
 
-object UserRoutes {
-  def apply(userStore: Store[User]): Route = path("users") {
+class UserRoutes(userStore: Store[User]) {
+  def getRoutes: Route = path("users") {
     concat(
       get {
         complete(userStore.get())
       },
       post {
-        entity(as[UserPost])(userPost =>  createUser(userStore, userPost))
+        entity(as[UserPost])(userPost =>  createUser(userPost))
       }
     )
   }
 
-  def createUser(userStore: Store[User], userPost: UserPost): Route = {
+  def createUser(userPost: UserPost): Route = {
     userStore.get().find(_.email == userPost.email) match {
       case Some(_) => complete(StatusCodes.Conflict)
       case None =>

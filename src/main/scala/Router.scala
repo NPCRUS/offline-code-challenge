@@ -10,8 +10,8 @@ object Router {
 
   def apply(): Route = {
     concat(
-      UserRoutes(userStore),
-      ProductRoutes(productStore),
+      new UserRoutes(userStore).getRoutes,
+      new ProductRoutes(productStore).getRoutes,
       CartRoutes(),
       OrderRoutes()
     )

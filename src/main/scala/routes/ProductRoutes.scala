@@ -6,8 +6,8 @@ import stores.Store
 import models.{ ProductPost, Product }
 import models.JsonSupport._
 
-object ProductRoutes {
-  def apply(productStore: Store[Product]): Route = path("products") {
+class ProductRoutes(productStore: Store[Product]) {
+  def getRoutes: Route = path("products") {
     concat(
       get {
         complete(productStore.get())

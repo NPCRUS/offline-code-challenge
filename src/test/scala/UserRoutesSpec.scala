@@ -15,12 +15,12 @@ class UserRoutesSpec extends AnyWordSpecLike
   with BeforeAndAfterEach
   with  ScalatestRouteTest
 {
-  var usersRoute: Route = UserRoutes(new Store[User])
+  var usersRoute: Route = new UserRoutes(new Store[User]).getRoutes
   val userPost: UserPost = UserPost(name = "test", bankAccount = "test", email = "test@test.com")
   val userPostRequest: HttpRequest = Post("/users", userPost)
 
   override def beforeEach() {
-    usersRoute = UserRoutes(new Store[User])
+    usersRoute = new UserRoutes(new Store[User]).getRoutes
   }
 
   "UsersRoute post" should {
