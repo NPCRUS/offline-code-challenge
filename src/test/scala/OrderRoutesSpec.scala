@@ -3,24 +3,39 @@ import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
 import akka.http.scaladsl.server.{MissingHeaderRejection, Route}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import stores.{CartStore, OrderStore, ProductStore, UserStore}
+import stores.{CartStore, Store}
 import models.JsonSupport._
-import models.{CartItem, Order, OrderCreateError, OrderPost, ProductPost, UserPost}
+import models.{CartItem, Order, OrderCreateError, OrderPost, Product, ProductPost, User, UserPost}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import routes.{CartRoutes, OrderRoutes}
 
-class OrderRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteTest {
-  val orderRoute: Route = OrderRoutes()
-  val cartRoute: Route = CartRoutes()
-  // some seeds
-  ProductStore.create(ProductPost("coca-cola", 2, 100))
-  ProductStore.create(ProductPost("pepsi-cola", 1, 200))
-  UserStore.create(UserPost("Nikita", "DE152332432324", "npcrus@gmail.com"))
+class OrderRoutesSpec extends AnyWordSpecLike
+  with Matchers
+  with BeforeAndAfterEach
+  with ScalatestRouteTest
+{
+  var cartStore: CartStore = new CartStore
+  var productStore: Store[Product] = new Store[Product]
+  var orderStore: Store[Order] = new Store[Order]
+  var orderRoute: Route = new OrderRoutes(orderStore, cartStore, productStore, new Store[User]).getRoutes
+  val product1: Product = Product(1, "coca-cola", 2, 100)
+  val product2: Product = Product(2, "pepsi-cola", 1, 200)
+  var user: User = User(1, "Nikita", "DE152332432324", "npcrus@gmail.com")
+  val cartItem: CartItem = CartItem(1, 10)
   def authHeader: RawHeader = RawHeader("Authorization-Email", "npcrus@gmail.com")
 
-  val cartItem: CartItem = CartItem(1, 10)
-  val cartAddPatch: HttpRequest = Patch("/cart", cartItem)
+  override def beforeEach(): Unit = {
+    productStore = new Store[Product]
+    val userStore = new Store[User]
+    cartStore = new CartStore
+    orderStore = new Store[Order]
+    userStore.create(user)
+    productStore.create(product1)
+    productStore.create(product2)
+    orderRoute = new OrderRoutes(orderStore, cartStore, productStore, userStore).getRoutes
+  }
 
   "Order Route" should {
     "respond with missing Authorization-Email header if none presented" in {
@@ -39,12 +54,11 @@ class OrderRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteT
     "respond with Not Found(empty cart) if cart id empty" in {
       Post("/orders", OrderPost("test")) ~> authHeader ~> orderRoute ~> check {
         status.shouldEqual(StatusCodes.NotFound)
-        entityAs[String].shouldEqual("cart is empty")
       }
     }
     "respond with List(OrderCreateError) if amount ordered is more than in storage" in {
-      cartAddPatch ~> authHeader ~> cartRoute
-      ProductStore.update(cartItem.productId, 1)
+      cartStore.patch(user.email, cartItem)
+      productStore.update(Product.withNewCount(product1, 0))
       Post("/orders", OrderPost("test")) ~> authHeader ~> orderRoute ~> check {
         status.shouldEqual(StatusCodes.Conflict)
         entityAs[List[OrderCreateError]].length.shouldEqual(1)
@@ -52,34 +66,32 @@ class OrderRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteT
       }
     }
     "respond with 200 and clear cart and update product count" in {
-      CartStore.clear("npcrus@gmail.com")
-      ProductStore.update(cartItem.productId, 100)
-      cartAddPatch ~> authHeader ~> cartRoute
+      cartStore.patch(user.email, cartItem)
       Post("/orders", OrderPost("test")) ~> authHeader ~> orderRoute ~> check {
         status.shouldEqual(StatusCodes.OK)
         entityAs[String].shouldEqual("1")
       }
       Get("/orders") ~> authHeader ~> orderRoute ~> check {
         entityAs[List[Order]].shouldEqual(List(
-          Order(1, "npcrus@gmail.com", "test", List(cartItem))
+          Order(1, user.email, "test", List(cartItem))
         ))
       }
-      Get("/cart") ~> authHeader ~> cartRoute ~> check {
-        entityAs[List[CartItem]].shouldEqual(List.empty)
-      }
+      cartStore.get(user.email).shouldEqual(List.empty)
     }
   }
 
   "OrderRoute get" should {
     "return list of orders" in {
+      cartStore.patch(user.email, cartItem)
+      Post("/orders", OrderPost("test")) ~> authHeader ~> orderRoute
       Get("/orders") ~> authHeader ~> orderRoute ~> check {
-        entityAs[List[Order]].shouldEqual(List(Order(1, "npcrus@gmail.com", "test", List(cartItem))))
+        entityAs[List[Order]].shouldEqual(List(Order(1, user.email, "test", List(cartItem))))
       }
     }
     "return list of orders that belong to specific email" in {
-      OrderStore.create("test@test.com", OrderPost("test"), List(cartItem))
+      orderStore.create(Order(1, "test@test.com", "test", List(cartItem)))
       Get("/orders") ~> authHeader ~> orderRoute ~> check {
-        entityAs[List[Order]].filterNot(o => o.email == "npcrus@gmail.com").length.shouldEqual(0)
+        entityAs[List[Order]].shouldEqual(List.empty)
       }
     }
   }

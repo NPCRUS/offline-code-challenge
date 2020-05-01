@@ -19,7 +19,7 @@ class UserRoutesSpec extends AnyWordSpecLike
   val userPost: UserPost = UserPost(name = "test", bankAccount = "test", email = "test@test.com")
   val userPostRequest: HttpRequest = Post("/users", userPost)
 
-  override def beforeEach() {
+  override def beforeEach(): Unit = {
     usersRoute = new UserRoutes(new Store[User]).getRoutes
   }
 

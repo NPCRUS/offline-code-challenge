@@ -18,7 +18,7 @@ class ProductRoutesSpec extends AnyWordSpecLike
   val productPost: ProductPost = ProductPost(description = "coca-cola", price = 2, count = 100)
   val productPostRequest: HttpRequest = Post("/products", productPost)
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     productRoute = new ProductRoutes(new Store[Product]).getRoutes
   }
 

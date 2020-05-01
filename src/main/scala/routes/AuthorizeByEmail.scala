@@ -1,10 +1,11 @@
 package routes
 
-import stores.UserStore
+import models.User
+import stores.Store
 
-trait AuthorizeByEmail {
+class AuthorizeByEmail(userStore: Store[User]) {
   def authorizeByEmail(email: String): Boolean = {
-    UserStore.getByEmail(email) match {
+    userStore.get().find(_.email == email) match {
       case Some(_) => true
       case None => false
     }

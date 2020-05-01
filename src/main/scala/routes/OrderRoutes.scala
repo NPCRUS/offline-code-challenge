@@ -3,60 +3,66 @@ package routes
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import stores.{CartStore, OrderStore, ProductStore}
+import stores.{CartStore, Store}
 import models.JsonSupport._
-import models.{CartItem, OrderCreateError, OrderPost}
+import models.{CartItem, Order, OrderCreateError, OrderPost, User, Product}
 
-object OrderRoutes extends AuthorizeByEmail {
-  def apply(): Route = path("orders") {
+class OrderRoutes(
+    orderStore: Store[Order],
+    cartStore: CartStore,
+    productStore: Store[Product],
+    userStore: Store[User]
+) extends AuthorizeByEmail(userStore) {
+  def getRoutes: Route = path("orders") {
    headerValueByName("Authorization-Email") { email =>
      authorize(authorizeByEmail(email)) {
        concat(
          get {
-           complete(OrderStore.get(email))
+           complete(orderStore.get().filter(_.email == email))
          },
          post {
-           entity(as[OrderPost]) { orderPost =>
-             val cart = CartStore.get(email)
-             val cartErrors = CartIntegrity.getCartErrors(cart)
-
-             if(cart.isEmpty) complete(StatusCodes.NotFound, "cart is empty")
-             else if(cartErrors.nonEmpty) complete(StatusCodes.Conflict, cartErrors)
-             else complete(createOrder(email, orderPost, cart).toString)
-           }
+           entity(as[OrderPost])(createOrder(email, _))
          }
        )
      }
    }
   }
 
-  private def createOrder(email: String, orderPost: OrderPost, cart: List[CartItem]): Long = {
+  private def createOrder(email: String, orderPost: OrderPost): Route = {
     // this code suppose to use some sort of lock mechanism or something to avoid race conditions(simultaneous order creations)
     // this code suppose to use some sort of transaction mechanism in order to not have any dangling state
+    val cart = cartStore.get(email)
+    val cartErrors = getCartErrors(cart)
 
-    // update quantities on products
-    cart.foreach(ci => {
-      ProductStore.getById(ci.productId) match {
-        case Some(p) => ProductStore.update(ci.productId, p.count - ci.quantity)
-        case None => // shouldn't happen
-      }
-    })
-    // clear cart
-    CartStore.clear(email)
-    // create order
-    OrderStore.create(email, orderPost, cart)
-  }
-
-  object CartIntegrity {
-    def getCartErrors(cart: List[CartItem]): List[OrderCreateError] = {
-      cart.flatMap(ci => {
-        ProductStore.getById(ci.productId) match {
-          case Some(p) =>
-            if(p.count < ci.quantity) List(OrderCreateError(ci.productId, s"max amount of items ${p.count}"))
-            else List.empty
-          case None => List(OrderCreateError(ci.productId, "product with such id does not exist"))
+    if(cart.isEmpty) complete(StatusCodes.NotFound, "cart is empty")
+    else if(cartErrors.nonEmpty) complete(StatusCodes.Conflict, cartErrors)
+    else {
+      // update quantities on products
+      cart.foreach(ci => {
+        productStore.getById(ci.productId) match {
+          case Some(p) => {
+            val newProduct =  Product(p.id, p.description, p.price, p.count - ci.quantity)
+            productStore.update(newProduct)
+          }
+          case None => // shouldn't happen
         }
       })
+      // clear cart
+      cartStore.clear(email)
+      // create order
+      val newOrder = Order(orderStore.nextId, email, orderPost.deliveryAddress, cart)
+      complete(orderStore.create(newOrder).toString)
     }
+  }
+
+  private def getCartErrors(cart: List[CartItem]): List[OrderCreateError] = {
+    cart.flatMap(ci => {
+      productStore.getById(ci.productId) match {
+        case Some(p) =>
+          if(p.count < ci.quantity) List(OrderCreateError(ci.productId, s"max amount of items ${p.count}"))
+          else List.empty
+        case None => List(OrderCreateError(ci.productId, "product with such id does not exist"))
+      }
+    })
   }
 }

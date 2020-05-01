@@ -2,12 +2,12 @@ package stores
 
 import models.CartItem
 
-object CartStore {
+class CartStore {
   private var carts: Map[String, List[CartItem]] = Map.empty
 
   def get(key: String): List[CartItem] = carts.getOrElse(key, List.empty).reverse
 
-  def add(key: String, item: CartItem): Unit = {
+  def patch(key: String, item: CartItem): Unit = {
     def updateOrAdd(cart: List[CartItem], item: CartItem): List[CartItem] = {
       if(cart.exists(_.productId == item.productId)) {
         cart.map(ci => {

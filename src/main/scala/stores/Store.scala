@@ -7,6 +7,8 @@ class Store[T <: Entity] {
 
   def get(): List[T] = list.reverse
 
+  def getById(id: Long): Option[T] = list.find(_.id == id)
+
   def create(body: T): Long = {
     list = body :: list
     body.id

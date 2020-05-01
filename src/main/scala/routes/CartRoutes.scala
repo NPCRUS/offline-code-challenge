@@ -3,43 +3,46 @@ package routes
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import stores.{CartStore, ProductStore}
-import models.{CartItem, CartItemDelete, Product}
+import stores.{CartStore, Store}
+import models.{CartItem, CartItemDelete, Product, User}
 import models.JsonSupport._
 
-object CartRoutes extends AuthorizeByEmail {
- def apply(): Route = path("cart") {
+class CartRoutes(
+   cartStore: CartStore,
+   productStore: Store[Product],
+   userStore: Store[User]
+) extends AuthorizeByEmail(userStore) {
+  def getRoutes: Route = path("cart") {
    headerValueByName("Authorization-Email") { email =>
      authorize(authorizeByEmail(email)) {
        concat(
          get {
-           complete(CartStore.get(email))
+           complete(cartStore.get(email))
          },
          patch {
-           entity(as[CartItem]) { cartItem =>
-             if(!checkProductQuantityIntegrity(cartItem)) complete(StatusCodes.Conflict)
-             else {
-               CartStore.add(email, cartItem)
-               complete(StatusCodes.OK)
-             }
-           }
+           entity(as[CartItem])(patchCart(email, _))
          },
          delete {
-           entity(as[CartItemDelete]) { cartItemDelete =>
-             CartStore.remove(email, cartItemDelete.productId)
-             complete(StatusCodes.OK)
-           }
+           entity(as[CartItemDelete])(deleteCart(email, _))
          }
        )
      }
    }
- }
+  }
 
-  private def checkProductQuantityIntegrity(cartItem: CartItem): Boolean = {
-    val productOption: Option[Product] = ProductStore.getById(cartItem.productId)
+  def patchCart(email: String, cartItem: CartItem): Route = {
+    val productOption: Option[Product] = productStore.getById(cartItem.productId)
 
-    if(productOption.isEmpty) false // no such product
-    else if(productOption.get.count < cartItem.quantity) false // not enough count of products
-    else true
+    if(productOption.isEmpty) complete(StatusCodes.Conflict, "no such product")
+    else if(productOption.get.count < cartItem.quantity) complete(StatusCodes.Conflict, "not enough items")
+    else {
+      cartStore.patch(email, cartItem)
+      complete(StatusCodes.OK)
+    }
+  }
+
+  def deleteCart(email: String, body: CartItemDelete): Route = {
+    cartStore.remove(email, body.productId)
+    complete(StatusCodes.OK)
   }
 }
