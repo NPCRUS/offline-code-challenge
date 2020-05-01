@@ -1,3 +1,9 @@
+##### Features:
+1. API logic
+2. In-memory database(stores)
+3. Tests
+4. API documentation
+
 ##### Possible improvements:
 1. API documentation(manual swagger or using lib)
 2. ~~Better seeding mechanism~~
@@ -8,6 +14,7 @@
     1. ~~refreshable state~~
     2. ~~primary id sequence abstract logic~~
     3. lock on write mechanism
+    4. transactions
 5. Models:
     1. ~~Entity abstraction~~
 6. Tests:
