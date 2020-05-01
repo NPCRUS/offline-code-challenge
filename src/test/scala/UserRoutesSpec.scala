@@ -10,7 +10,11 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import stores.Store
 
-class UserRoutesSpec extends AnyWordSpecLike with Matchers with BeforeAndAfterEach with  ScalatestRouteTest {
+class UserRoutesSpec extends AnyWordSpecLike
+  with Matchers
+  with BeforeAndAfterEach
+  with  ScalatestRouteTest
+{
   var usersRoute: Route = UserRoutes(new Store[User])
   val userPost: UserPost = UserPost(name = "test", bankAccount = "test", email = "test@test.com")
   val userPostRequest: HttpRequest = Post("/users", userPost)

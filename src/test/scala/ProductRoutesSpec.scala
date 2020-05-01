@@ -2,15 +2,25 @@ import models.JsonSupport._
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import models.{ ProductPost, Product }
+import models.{Product, ProductPost}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import routes.ProductRoutes
+import stores.Store
 
-class ProductRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRouteTest {
-  val productRoute: Route = ProductRoutes()
+class ProductRoutesSpec extends AnyWordSpecLike
+  with Matchers
+  with BeforeAndAfterEach
+  with ScalatestRouteTest
+{
+  var productRoute: Route = ProductRoutes(new Store[Product])
   val productPost: ProductPost = ProductPost(description = "coca-cola", price = 2, count = 100)
   val productPostRequest: HttpRequest = Post("/products", productPost)
+
+  override def beforeEach() = {
+    productRoute = ProductRoutes(new Store[Product])
+  }
 
   "ProductRoute post" should {
     "return id of newly created product" in {
@@ -22,6 +32,7 @@ class ProductRoutesSpec extends AnyWordSpecLike with Matchers with ScalatestRout
 
   "ProductRoute get" should {
     "return list of products" in {
+      productPostRequest ~> productRoute
       Get("/products") ~> productRoute ~> check {
         responseAs[List[Product]].shouldEqual(List(Product.fromPost(1, productPost)))
       }

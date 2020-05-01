@@ -12,9 +12,17 @@ class Store[T <: Entity] {
     body.id
   }
 
-  def nextId: Long =
+  def update(body: T): Unit = {
+    list = list.map(e => {
+      if(e.id == body.id) body
+      else e
+    })
+  }
+
+  def nextId: Long = {
     list.headOption match {
       case Some(entity) => entity.id + 1
       case None => 1
     }
+  }
 }
