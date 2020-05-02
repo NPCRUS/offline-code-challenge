@@ -1,3 +1,13 @@
+##### Letter
+First of all, I want to say that I had huge fun doing rest api using scala.
+I'm looking forward for our further conversation. Runnable file is: `src/main/scala/WebServer`.
+API documentation realized manually and saved in `openapi.yaml`, standard is OpenAPI 3.0 you can open this file
+using any swagger online editors, [for example here](https://editor.swagger.io/)
+
+Since I was implementing database in-memory and haven't used any ready solutions, it's missing couple of key features
+which is really important for live system: **Lock** mechanism and **Transaction** mechanism, let me know if
+features are required for successful implementation of this code challenge.
+
 ##### Features:
 1. API logic
 2. In-memory database(stores)

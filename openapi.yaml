@@ -1,0 +1,263 @@
+openapi: 3.0.1
+info:
+  title: Test API
+  version: 1.0.0
+tags:
+  - name: users
+    description: Users api
+  - name: products
+    description: Products api
+  - name: cart
+    description: Cart operations api
+  - name: orders
+    description: Orders api
+servers:
+  - url: http://localhost:8080
+  
+paths:
+  /users:
+    get:
+      tags: 
+        - users
+      summary: Get list of users
+      responses:
+        200:
+          description: list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      tags: 
+        - users
+      summary: Create new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPost'
+      responses:
+        200:
+          description: User created successfully, returns id
+          content:
+            plain/text:
+              schema:
+                type: string
+        409:
+          description: User with provided email exists
+          
+  /products:
+    get:
+      tags: 
+        - products
+      summary: Get list of products
+      responses:
+        200:
+          description: list of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      tags: 
+        - products
+      summary: Create new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductPost'
+      responses:
+        200:
+          description: Product created successfully, returns id
+          content:
+            plain/text:
+              schema:
+                type: string
+                
+  /cart:
+    get:
+      tags: 
+        - cart
+      security: 
+        - EmailAuth: []
+      summary: Get your cart content
+      responses:
+        200:
+          description: list of cartItems
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CartItem'
+    patch:
+      tags: 
+        - cart
+      security: 
+        - EmailAuth: []
+      summary: Update or add item into your cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItem'
+      responses:
+        200:
+          description: Cart updated successfully
+    delete:
+      tags: 
+        - cart
+      security: 
+        - EmailAuth: []
+      summary: Delete item from your cart
+      # requestBody:
+      #   required: true
+      #   content:
+      #     application/json:
+      #       schema:
+      #         $ref: '#/components/schemas/CartItem'
+      responses:
+        200:
+          description: CartItem deleted succcessfully from cart
+          
+  /orders:
+    get:
+      tags: 
+        - orders
+      security: 
+        - EmailAuth: []
+      summary: Get list of orders
+      responses:
+        200:
+          description: list of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+    post:
+      tags: 
+        - orders
+      security: 
+        - EmailAuth: []
+      summary: Create new order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderPost'
+      responses:
+        200:
+          description: Order created successfully, returns id
+          content:
+            plain/text:
+              schema:
+                type: string
+        404:
+          description: cart is empty
+        409:
+          description: Either product in cart does not exists, or requested amount is more than is available
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderCreateError'
+      
+    
+  
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        bankAccount:
+          type: string
+        email:
+          type: string
+    UserPost:
+      type: object
+      properties:
+        name:
+          type: string
+        bankAccount:
+          type: string
+        email:
+          type: string
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+        price:
+          type: integer
+        count:
+          type: integer
+    ProductPost:
+      type: object
+      properties:
+        description:
+          type: string
+        price:
+          type: integer
+        count:
+          type: integer  
+    CartItem:
+      type: object
+      properties:
+        productId:
+          type: integer
+        quantity:
+          type: integer
+    CartItemDelete:
+      type: object
+      properties:
+        productId:
+          type: integer
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        deliveryAddress:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+    OrderPost:
+      type: object
+      properties:
+        deliveryAddress:
+          type: string
+    OrderCreateError:
+      type: object
+      properties:
+        productId:
+          type: integer
+        message:
+          type: string
+  securitySchemes:
+    EmailAuth:
+      description: User your email for authorization
+      type: apiKey
+      in: header
+      name: Authorization-Email
