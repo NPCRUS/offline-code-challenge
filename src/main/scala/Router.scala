@@ -23,6 +23,6 @@ object Router {
   private def seeds(): Unit = {
     productStore.create(Product(productStore.nextId, "coca-cola", 2, 100))
     productStore.create(Product(productStore.nextId, "pepsi-cola", 1, 200))
-    userStore.create(User(userStore.nextId, "Nikita", "DE152332432324", "npcrus@gmail.com"))
+    userStore.create(User(userStore.nextId, "Nikita", "DE152332432324", "test@gmail.com"))
   }
 }

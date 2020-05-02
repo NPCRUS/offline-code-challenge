@@ -8,6 +8,11 @@ Since I was implementing database in-memory and haven't used any ready solutions
 which is really important for live system: **Lock** mechanism and **Transaction** mechanism, let me know if
 features are required for successful implementation of this code challenge.
 
+For easier manual testing I implemented some seeds:
+* User - test@gmail.com
+* Product1 - coca-cola, id: 1, price: 2, quantity: 100
+* Product2 - pepsi-cola, id: 2, price: 1, quantity: 200
+
 ##### Features:
 1. API logic
 2. In-memory database(stores)
@@ -15,7 +20,7 @@ features are required for successful implementation of this code challenge.
 4. API documentation
 
 ##### Possible improvements:
-1. API documentation(manual swagger or using lib)
+1. ~~API documentation(manual swagger or using lib)~~
 2. ~~Better seeding mechanism~~
 3. Router
     1. Organize routes into services (akka-http abstraction)
