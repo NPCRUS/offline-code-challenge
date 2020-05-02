@@ -1,4 +1,4 @@
-##### Letter
+#### Letter
 First of all, I want to say that I had huge fun doing rest api using scala.
 I'm looking forward for our further conversation. Runnable file is: `src/main/scala/WebServer`.
 API documentation realized manually and saved in `openapi.yaml`, standard is OpenAPI 3.0 you can open this file
@@ -13,13 +13,13 @@ For easier manual testing I implemented some seeds:
 * Product1 - coca-cola, id: 1, price: 2, quantity: 100
 * Product2 - pepsi-cola, id: 2, price: 1, quantity: 200
 
-##### Features:
+#### Features:
 1. API logic
 2. In-memory database(stores)
 3. Tests
 4. API documentation
 
-##### Possible improvements:
+#### Possible improvements:
 1. ~~API documentation(manual swagger or using lib)~~
 2. ~~Better seeding mechanism~~
 3. Router
